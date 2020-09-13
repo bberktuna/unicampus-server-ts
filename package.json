@@ -1,17 +1,41 @@
 {
-   "name": "server",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
-   "devDependencies": {
-      "ts-node": "3.3.0",
-      "@types/node": "^8.0.29",
-      "typescript": "3.3.3333"
-   },
-   "dependencies": {
-      "typeorm": "0.2.25",
-      "reflect-metadata": "^0.1.10"
-   },
-   "scripts": {
-      "start": "ts-node src/index.ts"
-   }
+  "name": "server",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/express": "^4.17.8",
+    "@types/express-session": "^1.17.0",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/node": "^8.0.29",
+    "@types/pg": "^7.14.4",
+    "nodemon": "^2.0.4",
+    "ts-node": "3.3.0",
+    "ts-node-dev": "^1.0.0-pre.62",
+    "typescript": "3.3.3333"
+  },
+  "dependencies": {
+    "apollo-server-express": "^2.17.0",
+    "bcrypt": "^5.0.0",
+    "class-transformer": "^0.3.1",
+    "class-validator": "^0.12.2",
+    "connect-sqlite3": "^0.9.11",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "graphql": "^15.3.0",
+    "graphql-postgres-subscriptions": "^1.0.5",
+    "graphql-subscriptions": "^1.1.0",
+    "graphql-toolkit": "^0.7.5",
+    "jsonwebtoken": "^8.5.1",
+    "pg": "^8.3.3",
+    "reflect-metadata": "^0.1.10",
+    "type-graphql": "^1.0.0",
+    "typeorm": "0.2.26"
+  },
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc",
+    "heroku-postbuild": "tsc"
+  }
 }

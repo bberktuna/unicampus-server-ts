@@ -1,21 +1,78 @@
 import "reflect-metadata";
-import {createConnection} from "typeorm";
-import {User} from "./entity/User";
+import { createConnection, getConnectionOptions } from "typeorm";
+//import { User } from './entity/User';
+//import pubSub from "./pubSub";
+//import http from "http";
 
-createConnection().then(async connection => {
+//SERVER
+import express from "express";
+import session from "express-session";
+import connectSqlite3 from "connect-sqlite3";
+import { ApolloServer } from "apollo-server-express";
+import { buildSchema } from "type-graphql";
+import * as path from "path";
 
-    console.log("Inserting a new user into the database...");
-    const user = new User();
-    user.firstName = "Timber";
-    user.lastName = "Saw";
-    user.age = 25;
-    await connection.manager.save(user);
-    console.log("Saved a new user with id: " + user.id);
+const SQLiteStore = connectSqlite3(session);
 
-    console.log("Loading users from the database...");
-    const users = await connection.manager.find(User);
-    console.log("Loaded users: ", users);
+async function bootstrap() {
+  const app = express();
+  // use express session
 
-    console.log("Here you can setup and run express/koa/any other framework.");
+  app.use(
+    session({
+      store: new SQLiteStore({
+        db: "database.sqlite",
+        concurrentDB: true,
+      }),
+      name: "qid",
+      secret: process.env.SESSION_SECRET || "SESSION_SECRET",
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60 * 24 * 7 * 365, // 7 years
+      },
+    })
+  );
 
-}).catch(error => console.log(error));
+  // get options from ormconfig.js
+  const dbOptions = await getConnectionOptions(
+    process.env.NODE_ENV || "development"
+  );
+  createConnection({ ...dbOptions, name: "default" })
+    .then(async () => {
+      const schema = await buildSchema({
+        resolvers: [__dirname + "/resolvers/*.ts"],
+        emitSchemaFile: path.resolve(__dirname, "schema.gql"),
+      });
+
+      const apolloServer = new ApolloServer({
+        schema,
+        context: ({ req, res }) => ({ req, res }),
+        introspection: true,
+        playground: true,
+        subscriptions: {
+          keepAlive: 1000,
+        },
+      });
+
+      apolloServer.applyMiddleware({ app, cors: true });
+
+      const port = process.env.PORT || 4000;
+
+      //const httpServer = http.createServer(app);
+      //apolloServer.installSubscriptionHandlers(httpServer);
+
+      app.listen(port, () => {
+        // httpServer.listen
+        console.log(`Server started at http://localhost:${port}/graphql`);
+        /*console.log(
+          `Subscriptions ready at ws://localhost:${port}${apolloServer.subscriptionsPath}/graphql`
+        );*/
+      });
+    })
+
+    .catch((error) => console.log(error));
+}
+bootstrap();
