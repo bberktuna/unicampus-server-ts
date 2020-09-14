@@ -108,7 +108,8 @@ export class PostResolver {
   @Subscription(() => Post, {
     topics: Topic.PostAdded,
   })
-  newPostAdded(@Root() post: Post): Post {
+  newPostAdded(
+    @Root() post: Post): Post {
     return post;
   }
   */

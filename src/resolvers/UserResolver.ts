@@ -73,6 +73,19 @@ export class UserResolver {
     return { user, token };
   }
 
+  @Mutation(() => String)
+  async deleteUser(
+    @Arg("id") id: number,
+    @Ctx() ctx: { req: Request }
+  ): Promise<Number | undefined> {
+    const userId = getUserId(ctx);
+    if (userId) {
+      await User.delete({ id: userId });
+      return id;
+    }
+    throw new Error("USER NOT FOUND");
+  }
+
   @Mutation(() => UserResponse)
   async login(
     @Arg("input") { username, email, password }: UserInput,

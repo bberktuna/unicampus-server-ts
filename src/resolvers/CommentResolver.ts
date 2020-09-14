@@ -50,9 +50,9 @@ export class CommentResolver {
         relations: ["user", "post"],
       });
       */
-      const postId = Post.findOne({ id, user: { id: userId } });
+      const postExists = Post.findOne({ id, user: { id: userId } });
 
-      if (postId) {
+      if (postExists) {
         const comment = plainToClass(Comment, {
           text: commentInput.text,
           creationDate: new Date(),

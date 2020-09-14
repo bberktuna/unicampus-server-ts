@@ -23,6 +23,7 @@ type Mutation {
   createComment(comment: CommentInput!, id: Float!): Comment!
   createPost(post: PostInput!): Post!
   deletePost(id: Float!): String!
+  deleteUser(id: Float!): String!
   login(input: UserInput!): UserResponse!
   register(input: UserInput!): UserResponse!
   updatePost(post: PostInput!): Post!
