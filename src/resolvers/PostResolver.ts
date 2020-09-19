@@ -7,6 +7,10 @@ import {
   Arg,
   Mutation,
   Ctx,
+  PubSub,
+  Publisher,
+  Root,
+  Subscription,
   //Root,
   //Subscription,
 } from "type-graphql";
@@ -14,11 +18,9 @@ import { plainToClass } from "class-transformer";
 import { getUserId } from "../utils";
 import { Request } from "express";
 
-/*
 enum Topic {
-  PlaceAdded = "NEW_PLACE_ADDED",
+  PostAdded = "NEW_POST_ADDED",
 }
-*/
 
 @Resolver(() => Post)
 export class PostResolver {
@@ -31,6 +33,15 @@ export class PostResolver {
   async posts(): Promise<Post[]> {
     const posts = await Post.find({ relations: ["user", "comments"] });
     return posts;
+  }
+  @Query(() => [Post])
+  async myPosts(@Ctx() ctx: { req: Request }): Promise<Post[]> {
+    const userId = getUserId(ctx);
+    if (userId) {
+      const myPosts = await Post.find(userId);
+      return myPosts;
+    }
+    throw new Error("User not found");
   }
   //
   //
@@ -46,8 +57,8 @@ export class PostResolver {
   @Mutation(() => Post)
   async createPost(
     @Arg("post") postInput: PostInput,
-    @Ctx() ctx: { req: Request }
-    //@PubSub(Topic.PlaceAdded) publish: Publisher<Place>
+    @Ctx() ctx: { req: Request },
+    @PubSub(Topic.PostAdded) publish: Publisher<Post>
   ): Promise<Post> {
     const userId = getUserId(ctx);
     if (userId) {
@@ -60,11 +71,12 @@ export class PostResolver {
         ...post,
         user,
       }).save();
-      //await publish(newPost);
+      await publish(newPost);
       return newPost;
     }
     throw new Error("User not found");
   }
+
   @Mutation(() => Post)
   async updatePost(
     @Arg("post") postInput: PostInput,
@@ -86,7 +98,7 @@ export class PostResolver {
       }
       throw new Error("POST not found");
     }
-    throw new Error("USER not found");
+    throw new Error("2user not found");
   }
 
   @Mutation(() => String)
@@ -104,13 +116,11 @@ export class PostResolver {
     }
     throw new Error("User not found");
   }
-  /*
+
   @Subscription(() => Post, {
     topics: Topic.PostAdded,
   })
-  newPostAdded(
-    @Root() post: Post): Post {
+  newPostAdded(@Root() post: Post): Post {
     return post;
   }
-  */
 }

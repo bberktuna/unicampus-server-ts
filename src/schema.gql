@@ -47,8 +47,13 @@ type Query {
   comment(id: Float!): Comment
   comments: [Comment!]!
   currentUser: User!
+  myPosts: [Post!]!
   post(id: Float!): Post
   posts: [Post!]!
+}
+
+type Subscription {
+  newPostAdded: Post!
 }
 
 type User {

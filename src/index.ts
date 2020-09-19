@@ -1,8 +1,6 @@
 import "reflect-metadata";
 import { createConnection, getConnectionOptions } from "typeorm";
-//import { User } from './entity/User';
-//import pubSub from "./pubSub";
-//import http from "http";
+import http from "http";
 
 //SERVER
 import express from "express";
@@ -61,15 +59,15 @@ async function bootstrap() {
 
       const port = process.env.PORT || 4000;
 
-      //const httpServer = http.createServer(app);
-      //apolloServer.installSubscriptionHandlers(httpServer);
+      const httpServer = http.createServer(app);
+      apolloServer.installSubscriptionHandlers(httpServer);
 
-      app.listen(port, () => {
-        // httpServer.listen
+      httpServer.listen(port, () => {
+        // app.listen
         console.log(`Server started at http://localhost:${port}/graphql`);
-        /*console.log(
+        console.log(
           `Subscriptions ready at ws://localhost:${port}${apolloServer.subscriptionsPath}/graphql`
-        );*/
+        );
       });
     })
 
